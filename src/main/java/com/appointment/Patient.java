@@ -1,16 +1,18 @@
 package com.appointment;
 
-import java.io.Serializable;
-
-public class Patient implements Serializable {
+public class Patient {
+    private String id;
     private String name;
     private String email;
-    private String appointmentDateTime;
 
-    public Patient(String name, String email, String appointmentDateTime) {
+    public Patient(String id, String name, String email) {
+        this.id = id;
         this.name = name;
         this.email = email;
-        this.appointmentDateTime = appointmentDateTime;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getName() {
@@ -21,12 +23,8 @@ public class Patient implements Serializable {
         return email;
     }
 
-    public String getAppointmentDateTime() {
-        return appointmentDateTime;
-    }
-
     @Override
     public String toString() {
-        return name + "," + email + "," + appointmentDateTime;
+        return "Patient ID: " + id + ", Name: " + name + ", Email: " + email;
     }
 }
