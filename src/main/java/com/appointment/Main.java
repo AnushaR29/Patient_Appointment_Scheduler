@@ -1,64 +1,62 @@
 package com.appointment;
 
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
         AppointmentService service = new AppointmentService();
-        int choice;
+        Scanner scanner = new Scanner(System.in);
+        boolean running = true;
 
-        do {
-            System.out.println("\n--- Patient Appointment Scheduler ---");
+        while (running) {
+            System.out.println("\n Patient Appointment Scheduler ");
             System.out.println("1. Book Appointment");
             System.out.println("2. Cancel Appointment");
             System.out.println("3. List Appointments");
             System.out.println("4. Exit");
-            System.out.print("Enter choice: ");
-            choice = Integer.parseInt(scanner.nextLine());
+            System.out.print("Choose an option: ");
+
+            String choice = scanner.nextLine();
 
             switch (choice) {
-                case 1:
+                case "1":
                     System.out.print("Enter Patient ID: ");
-                    String id = scanner.nextLine();
-                    System.out.print("Enter Patient Name: ");
+                    int id = Integer.parseInt(scanner.nextLine());
+                    System.out.print("Enter Name: ");
                     String name = scanner.nextLine();
-                    System.out.print("Enter Patient Email: ");
-                    String email = scanner.nextLine();
-                    Patient patient = new Patient(id, name, email);
-                    service.bookAppointment(patient);
-                    System.out.println("Appointment booked successfully.");
-                    break;
+                    System.out.print("Enter Appointment Date (yyyy-mm-dd): ");
+                    String date = scanner.nextLine();
 
-                case 2:
-                    System.out.print("Enter Patient ID to Cancel: ");
-                    String cancelId = scanner.nextLine();
-                    boolean cancelled = service.cancelAppointment(cancelId);
-                    System.out.println(cancelled ? "Appointment cancelled successfully." : "Appointment not found.");
-                    break;
-
-                case 3:
-                    List<Patient> patients = service.listAppointments();
-                    if (patients.isEmpty()) {
-                        System.out.println("No appointments found.");
+                    boolean booked = service.bookAppointment(id, name, date);
+                    if (booked) {
+                        System.out.println("Appointment booked.");
                     } else {
-                        System.out.println("--- Appointments ---");
-                        for (Patient p : patients) {
-                            System.out.println(p);
-                        }
+                        System.out.println("Appointment ID already exists.");
                     }
                     break;
 
-                case 4:
-                    System.out.println("Exiting... Thank you!");
+                case "2":
+                    System.out.print("Enter Patient ID to cancel: ");
+                    int cancelId = Integer.parseInt(scanner.nextLine());
+                    boolean cancelled = service.cancelAppointment(cancelId);
+                    System.out.println(cancelled ? "Appointment cancelled." : "Appointment not found.");
+                    break;
+
+                case "3":
+                    System.out.println("Appointments:");
+                    for (Patient p : service.listAppointments()) {
+                        System.out.println("ID: " + p.getId() + ", Name: " + p.getName() + ", Date: " + p.getAppointmentDate());
+                    }
+                    break;
+
+                case "4":
+                    running = false;
                     break;
 
                 default:
-                    System.out.println("Invalid choice. Try again.");
+                    System.out.println("Invalid option.");
             }
-
-        } while (choice != 4);
+        }
 
         scanner.close();
     }

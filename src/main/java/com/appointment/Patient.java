@@ -1,17 +1,17 @@
 package com.appointment;
 
 public class Patient {
-    private String id;
+    private int id;
     private String name;
-    private String email;
+    private String appointmentDate;
 
-    public Patient(String id, String name, String email) {
+    public Patient(int id, String name, String appointmentDate) {
         this.id = id;
         this.name = name;
-        this.email = email;
+        this.appointmentDate = appointmentDate;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
@@ -19,12 +19,19 @@ public class Patient {
         return name;
     }
 
-    public String getEmail() {
-        return email;
+    public String getAppointmentDate() {
+        return appointmentDate;
     }
 
-    @Override
-    public String toString() {
-        return "Patient ID: " + id + ", Name: " + name + ", Email: " + email;
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAppointmentDate(String appointmentDate) {
+        this.appointmentDate = appointmentDate;
     }
 }

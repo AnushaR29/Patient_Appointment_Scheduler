@@ -2,6 +2,7 @@ package com.appointment;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,50 +10,65 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AppointmentService {
-    private static final String FILE_NAME = "appointments.txt";
+    private List<Patient> appointments = new ArrayList<>();
+    private final String FILE_PATH = "appointments.txt";
 
-    public void bookAppointment(Patient patient) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
-            writer.write(patient.getId() + "," + patient.getName() + "," + patient.getEmail());
-            writer.newLine();
-        } catch (IOException e) {
-            System.err.println("Error booking appointment: " + e.getMessage());
-        }
+    public AppointmentService() {
+        loadAppointmentsFromFile();
     }
 
-    public boolean cancelAppointment(String patientId) {
-        List<Patient> patients = listAppointments();
-        boolean removed = patients.removeIf(p -> p.getId().equals(patientId));
-        if (removed) {
-            saveAppointments(patients);
+    public boolean bookAppointment(int id, String name, String date) {
+        for (Patient p : appointments) {
+            if (p.getId() == id) return false;
         }
+        Patient patient = new Patient(id, name, date);
+        appointments.add(patient);
+        saveAppointmentsToFile();
+        return true;
+    }
+
+    public boolean cancelAppointment(int id) {
+        boolean removed = appointments.removeIf(p -> p.getId() == id);
+        if (removed) saveAppointmentsToFile();
         return removed;
     }
 
     public List<Patient> listAppointments() {
-        List<Patient> patients = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",", 3);
-                if (parts.length == 3) {
-                    patients.add(new Patient(parts[0], parts[1], parts[2]));
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading appointments: " + e.getMessage());
-        }
-        return patients;
+        return new ArrayList<>(appointments);
     }
 
-    private void saveAppointments(List<Patient> patients) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
-            for (Patient p : patients) {
-                writer.write(p.getId() + "," + p.getName() + "," + p.getEmail());
+    private void saveAppointmentsToFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
+            for (Patient p : appointments) {
+                writer.write(p.getId() + "," + p.getName() + "," + p.getAppointmentDate());
                 writer.newLine();
             }
         } catch (IOException e) {
-            System.err.println("Error saving appointments: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void loadAppointmentsFromFile() {
+        File file = new File(FILE_PATH);
+        if (!file.exists()) return;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            appointments.clear();
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length != 3) continue;
+                try {
+                    int id = Integer.parseInt(parts[0].trim());
+                    String name = parts[1].trim();
+                    String date = parts[2].trim();
+                    appointments.add(new Patient(id, name, date));
+                } catch (NumberFormatException e) {
+                    System.out.println("Skipping invalid line: " + line);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
